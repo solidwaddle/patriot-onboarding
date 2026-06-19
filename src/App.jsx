@@ -65,7 +65,7 @@ const US_STATES = ["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","
 /* ---------- step definitions ---------- */
 const STEPS = [
   "Welcome", "Company", "Contact", "Billing", "Shipping",
-  "Payment", "Credit", "Documents", "Agreements", "Done"
+  "Payment", "Credit", "Credit & Compliance", "Agreements", "Done"
 ];
 
 /* =====================================================================
@@ -95,7 +95,7 @@ function Wizard({ goAdmin, goModel }) {
   const flowSteps = useMemo(() => {
     const s = ["Company", "Contact", "Billing", "Shipping", "Payment"];
     if (!skipCredit) s.push("Credit");
-    s.push("Documents", "Agreements");
+    s.push("Credit & Compliance", "Agreements");
     return s;
   }, [skipCredit]);
 
@@ -146,7 +146,7 @@ function Wizard({ goAdmin, goModel }) {
                     (i < progressIdx ? "bg-navy text-white" : i === progressIdx ? "bg-patriotred text-white ring-4 ring-patriotred/15" : "bg-slate-200 text-slate-500")}>
                     {i < progressIdx ? <Icon.check width="9" height="9" /> : i + 1}
                   </span>
-                  <span className={"text-[11px] " + (i === progressIdx ? "text-navy font-semibold" : "text-slate-400")}>{s}</span>
+                  <span className={"text-[11px] whitespace-nowrap " + (i === progressIdx ? "text-navy font-semibold" : "text-slate-400")}>{s === "Credit & Compliance" ? "Compliance" : s}</span>
                 </div>
               ))}
             </div>
@@ -519,37 +519,40 @@ function StepCredit({ d, set }) {
   );
 }
 
-function StepDocs({ d, set }) {
+function UploadZone({ slot, title, desc, badge, badgeTone, d, set }) {
   const [drag, setDrag] = useState(false);
   const inputRef = useRef();
-  const accepted = ["W-9", "Credit Application", "Tax Exemption Certificate", "Additional Supporting Documents"];
-  const addFiles = (files) => {
-    const list = Array.from(files).map(f => ({ id: Date.now() + Math.random(), name: f.name, size: (f.size / 1024).toFixed(0) + " KB", type: "Document" }));
+  const files = d.docs.filter(f => f.slot === slot);
+  const addFiles = (fileList) => {
+    const list = Array.from(fileList).map(f => ({ id: Date.now() + Math.random(), slot, name: f.name, size: (f.size / 1024).toFixed(0) + " KB" }));
     set("docs", [...d.docs, ...list]);
   };
   const onDrop = (e) => { e.preventDefault(); setDrag(false); addFiles(e.dataTransfer.files); };
   const rm = (id) => set("docs", d.docs.filter(x => x.id !== id));
+  const tone = badgeTone === "required" ? "text-patriotred bg-patriotred/10"
+    : badgeTone === "conditional" ? "text-amber-700 bg-amber-100"
+    : "text-slate-500 bg-slate-100";
   return (
-    <Card title="Required documentation" sub="Drag files in or browse. PDF, JPG, or PNG up to 25 MB each.">
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-[14px] font-semibold text-navy">{title}</div>
+        <span className={"text-[10px] font-bold uppercase tracking-wide rounded px-1.5 py-0.5 " + tone}>{badge}</span>
+      </div>
+      <p className="text-[12px] text-slate-500 mb-2.5">{desc}</p>
       <div onDragOver={e => { e.preventDefault(); setDrag(true); }} onDragLeave={() => setDrag(false)} onDrop={onDrop}
         onClick={() => inputRef.current.click()}
-        className={"rounded-2xl border-2 border-dashed p-10 text-center cursor-pointer transition " +
+        className={"rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition " +
           (drag ? "border-navy bg-navy/5" : "border-slate-300 hover:border-navy hover:bg-slate-50")}>
         <input ref={inputRef} type="file" multiple className="hidden" onChange={e => addFiles(e.target.files)} />
-        <div className="w-12 h-12 mx-auto rounded-xl bg-navy/10 text-navy flex items-center justify-center mb-3"><Icon.upload /></div>
-        <div className="text-[15px] font-semibold text-navy">Drop files here or <span className="text-patriotred">browse</span></div>
-        <div className="text-[12px] text-slate-500 mt-1">W-9 · Credit Application · Tax Exemption Certificate · Other</div>
+        <div className="w-10 h-10 mx-auto rounded-xl bg-navy/10 text-navy flex items-center justify-center mb-2"><Icon.upload /></div>
+        <div className="text-[14px] font-semibold text-navy">Drop file here or <span className="text-patriotred">browse</span></div>
+        <div className="text-[11px] text-slate-400 mt-0.5">PDF, JPG, or PNG · up to 25 MB</div>
       </div>
-
-      <div className="flex flex-wrap gap-2 mt-4">
-        {accepted.map(a => <span key={a} className="text-[11px] font-medium text-navy bg-slate-100 rounded-full px-3 py-1">{a}</span>)}
-      </div>
-
-      {d.docs.length > 0 && (
-        <div className="mt-5 space-y-2.5">
-          {d.docs.map(f => (
-            <div key={f.id} className="flex items-center gap-3 rounded-xl border border-slate-200 p-3 fade-in">
-              <div className="w-9 h-9 rounded-lg bg-patriotred/10 text-patriotred flex items-center justify-center"><Icon.file /></div>
+      {files.length > 0 && (
+        <div className="mt-2.5 space-y-2">
+          {files.map(f => (
+            <div key={f.id} className="flex items-center gap-3 rounded-xl border border-slate-200 p-2.5 fade-in">
+              <div className="w-8 h-8 rounded-lg bg-patriotred/10 text-patriotred flex items-center justify-center"><Icon.file /></div>
               <div className="flex-1 min-w-0">
                 <div className="text-[13px] font-semibold text-navy truncate">{f.name}</div>
                 <div className="text-[11px] text-slate-400">{f.size} · Uploaded</div>
@@ -560,6 +563,21 @@ function StepDocs({ d, set }) {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function StepDocs({ d, set }) {
+  return (
+    <Card title="Credit & Compliance" sub="Upload the documents we need to verify your business and set up your account.">
+      <div className="space-y-6">
+        <UploadZone slot="w9" title="Upload W-9" desc="Required for account setup and tax verification."
+          badge="Required" badgeTone="required" d={d} set={set} />
+        <UploadZone slot="credit" title="Upload Credit Application (if applicable)" desc="Required when requesting payment terms."
+          badge="If applicable" badgeTone="conditional" d={d} set={set} />
+        <UploadZone slot="additional" title="Upload Additional Supporting Documents" desc="Optional."
+          badge="Optional" badgeTone="optional" d={d} set={set} />
+      </div>
     </Card>
   );
 }
