@@ -263,7 +263,7 @@ function Card({ title, sub, children }) {
 /* =====================  STEPS  ===================== */
 function StepWelcome({ onBegin }) {
   const items = [
-    ["Company & contact details", "Legal name, EIN, primary contact"],
+    ["Company & contact details", "Legal name, address, primary contact"],
     ["Billing & shipping", "AP contact and your locations"],
     ["Payment & credit", "Choose terms; credit app if needed"],
     ["Documents & e-signature", "W-9, agreements, and sign-off"],
