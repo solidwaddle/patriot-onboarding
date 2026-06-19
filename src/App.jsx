@@ -18,6 +18,15 @@ const inputCls =
   "w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-[14px] text-ink " +
   "outline-none transition focus:border-navy focus:ring-2 focus:ring-navy/15 placeholder:text-slate-400";
 
+function SectionLabel({ children, className = "" }) {
+  return (
+    <div className={"flex items-center gap-3 mb-4 " + className}>
+      <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-patriotred">{children}</span>
+      <span className="flex-1 h-px bg-slate-100" />
+    </div>
+  );
+}
+
 function Text(props) { return <input {...props} className={inputCls} />; }
 function Area(props) { return <textarea {...props} className={inputCls + " resize-none"} rows={props.rows || 3} />; }
 function Select({ children, ...p }) {
@@ -285,10 +294,22 @@ function StepWelcome({ onBegin }) {
 function StepCompany({ d, set }) {
   return (
     <Card title="Tell us about your company" sub="This information activates your account and appears on shipping paperwork.">
+      <SectionLabel>Legal &amp; Credit</SectionLabel>
       <div className="grid sm:grid-cols-2 gap-4">
         <Field label="Legal Company Name" className="sm:col-span-2"><Text value={d.legalName} onChange={e => set("legalName", e.target.value)} placeholder="U.S. Parts Locators, Inc." /></Field>
         <Field label="DBA Name" optional><Text value={d.dba} onChange={e => set("dba", e.target.value)} placeholder="Trade name" /></Field>
         <Field label="Federal Tax ID (EIN)"><Text value={d.ein} onChange={e => set("ein", e.target.value)} placeholder="00-0000000" /></Field>
+        <Field label="HQ Address" className="sm:col-span-2"><Text value={d.companyAddr} onChange={e => set("companyAddr", e.target.value)} placeholder="Street address" /></Field>
+        <Field label="City"><Text value={d.companyCity} onChange={e => set("companyCity", e.target.value)} /></Field>
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="State"><Select value={d.companyState} onChange={e => set("companyState", e.target.value)}><option value="">—</option>{US_STATES.map(s => <option key={s}>{s}</option>)}</Select></Field>
+          <Field label="ZIP Code"><Text value={d.companyZip} onChange={e => set("companyZip", e.target.value)} /></Field>
+        </div>
+        <Field label="Country" className="sm:col-span-2"><Select value={d.companyCountry} onChange={e => set("companyCountry", e.target.value)}><option>United States</option><option>Canada</option><option>Mexico</option></Select></Field>
+      </div>
+
+      <SectionLabel className="mt-7">Business Details</SectionLabel>
+      <div className="grid sm:grid-cols-2 gap-4">
         <Field label="Website"><Text value={d.website} onChange={e => set("website", e.target.value)} placeholder="https://" /></Field>
         <Field label="Industry">
           <Select value={d.industry} onChange={e => set("industry", e.target.value)}>
@@ -297,13 +318,6 @@ function StepCompany({ d, set }) {
           </Select>
         </Field>
         <Field label="Company Phone Number" className="sm:col-span-2"><Text value={d.companyPhone} onChange={e => set("companyPhone", e.target.value)} placeholder="(555) 000-0000" /></Field>
-        <Field label="Company Address" className="sm:col-span-2"><Text value={d.companyAddr} onChange={e => set("companyAddr", e.target.value)} placeholder="Street address" /></Field>
-        <Field label="City"><Text value={d.companyCity} onChange={e => set("companyCity", e.target.value)} /></Field>
-        <div className="grid grid-cols-2 gap-4">
-          <Field label="State"><Select value={d.companyState} onChange={e => set("companyState", e.target.value)}><option value="">—</option>{US_STATES.map(s => <option key={s}>{s}</option>)}</Select></Field>
-          <Field label="ZIP Code"><Text value={d.companyZip} onChange={e => set("companyZip", e.target.value)} /></Field>
-        </div>
-        <Field label="Country" className="sm:col-span-2"><Select value={d.companyCountry} onChange={e => set("companyCountry", e.target.value)}><option>United States</option><option>Canada</option><option>Mexico</option></Select></Field>
       </div>
     </Card>
   );
