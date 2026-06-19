@@ -65,7 +65,7 @@ const US_STATES = ["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","
 /* ---------- step definitions ---------- */
 const STEPS = [
   "Welcome", "Company", "Contact", "Billing", "Shipping",
-  "Payment", "Credit", "Credit & Compliance", "Agreements", "Done"
+  "Payment", "Credit", "Agreements", "Done"
 ];
 
 /* =====================================================================
@@ -83,7 +83,6 @@ function Wizard({ goAdmin, goModel }) {
     shipLocations: [{ id: 1, addr: "", city: "", state: "", zip: "", country: "United States" }],
     payMethod: "", creditLimit: "", annualRev: "", yearsInBiz: "", dnb: "",
     tradeRefs: [{ id: 1, company: "", contact: "", phone: "", email: "" }],
-    docs: [],
     agreeCredit: false, agreeTerms: false, agreeComms: false,
     sigName: "", sigTitle: "", sigText: "", sigDate: "2026-06-12",
   });
@@ -95,16 +94,16 @@ function Wizard({ goAdmin, goModel }) {
   const flowSteps = useMemo(() => {
     const s = ["Company", "Contact", "Billing", "Shipping", "Payment"];
     if (!skipCredit) s.push("Credit");
-    s.push("Credit & Compliance", "Agreements");
+    s.push("Agreements");
     return s;
   }, [skipCredit]);
 
   const next = () => setStep(s => {
-    if (s === 5 && skipCredit) return 7;       // payment -> documents (skip credit)
-    return Math.min(s + 1, 9);
+    if (s === 5 && skipCredit) return 7;       // payment -> agreements (skip credit)
+    return Math.min(s + 1, 8);
   });
   const back = () => setStep(s => {
-    if (s === 7 && skipCredit) return 5;       // documents -> payment (skip credit)
+    if (s === 7 && skipCredit) return 5;       // agreements -> payment (skip credit)
     return Math.max(s - 1, 0);
   });
 
@@ -113,18 +112,18 @@ function Wizard({ goAdmin, goModel }) {
   // progress %
   const currentLabel = STEPS[step];
   const progressIdx = flowSteps.indexOf(currentLabel);
-  const pct = step === 0 ? 0 : step === 9 ? 100
+  const pct = step === 0 ? 0 : step === 8 ? 100
     : Math.round(((progressIdx + 1) / (flowSteps.length + 1)) * 100);
 
   return (
     <div className="min-h-screen flex flex-col">
-      <TopBar goAdmin={goAdmin} goModel={goModel} onSave={step > 0 && step < 9 ? saveLater : null} saved={saved} />
+      <TopBar goAdmin={goAdmin} goModel={goModel} onSave={step > 0 && step < 8 ? saveLater : null} saved={saved} />
 
       {/* hero band only on welcome & success */}
-      {(step === 0 || step === 9) && <HeroBand step={step} data={data} />}
+      {(step === 0 || step === 8) && <HeroBand step={step} data={data} />}
 
       {/* progress bar */}
-      {step > 0 && step < 9 && (
+      {step > 0 && step < 8 && (
         <div className="bg-white border-b border-slate-100">
           <div className="max-w-3xl mx-auto px-5 pt-5 pb-4">
             <div className="flex items-center justify-between mb-2.5">
@@ -146,7 +145,7 @@ function Wizard({ goAdmin, goModel }) {
                     (i < progressIdx ? "bg-navy text-white" : i === progressIdx ? "bg-patriotred text-white ring-4 ring-patriotred/15" : "bg-slate-200 text-slate-500")}>
                     {i < progressIdx ? <Icon.check width="9" height="9" /> : i + 1}
                   </span>
-                  <span className={"text-[11px] whitespace-nowrap " + (i === progressIdx ? "text-navy font-semibold" : "text-slate-400")}>{s === "Credit & Compliance" ? "Compliance" : s}</span>
+                  <span className={"text-[11px] whitespace-nowrap " + (i === progressIdx ? "text-navy font-semibold" : "text-slate-400")}>{s}</span>
                 </div>
               ))}
             </div>
@@ -156,7 +155,7 @@ function Wizard({ goAdmin, goModel }) {
 
       {/* body */}
       <main className="flex-1">
-        <div className={"mx-auto px-5 py-8 " + (step === 0 || step === 9 ? "max-w-2xl" : "max-w-3xl")}>
+        <div className={"mx-auto px-5 py-8 " + (step === 0 || step === 8 ? "max-w-2xl" : "max-w-3xl")}>
           <div key={step} className="fade-in">
             {step === 0 && <StepWelcome onBegin={() => setStep(1)} />}
             {step === 1 && <StepCompany d={data} set={set} />}
@@ -165,24 +164,23 @@ function Wizard({ goAdmin, goModel }) {
             {step === 4 && <StepShipping d={data} set={set} />}
             {step === 5 && <StepPayment d={data} set={set} />}
             {step === 6 && <StepCredit d={data} set={set} />}
-            {step === 7 && <StepDocs d={data} set={set} />}
-            {step === 8 && <StepAgreements d={data} set={set} />}
-            {step === 9 && <StepSuccess d={data} />}
+            {step === 7 && <StepAgreements d={data} set={set} />}
+            {step === 8 && <StepSuccess d={data} />}
           </div>
 
           {/* nav */}
-          {step > 0 && step < 9 && (
+          {step > 0 && step < 7 && (
             <div className="flex items-center justify-between mt-7">
               <Btn variant="ghost" onClick={back}><Icon.arrowL /> Back</Btn>
               <Btn variant="primary" onClick={next}>Next <Icon.arrowR /></Btn>
             </div>
           )}
-          {step === 8 && (
+          {step === 7 && (
             <div className="flex items-center justify-between mt-7">
               <Btn variant="ghost" onClick={back}><Icon.arrowL /> Back</Btn>
               <Btn variant="primary"
                 disabled={!(data.agreeCredit && data.agreeTerms && data.agreeComms && data.sigName && data.sigText)}
-                onClick={() => setStep(9)}>Submit Application <Icon.check width="15" height="15" /></Btn>
+                onClick={() => setStep(8)}>Submit Application <Icon.check width="15" height="15" /></Btn>
             </div>
           )}
         </div>
@@ -266,7 +264,7 @@ function StepWelcome({ onBegin }) {
     ["Company & contact details", "Legal name, address, primary contact"],
     ["Billing & shipping", "AP contact and your locations"],
     ["Payment & credit", "Choose terms; credit app if needed"],
-    ["Documents & e-signature", "W-9, agreements, and sign-off"],
+    ["Agreements & e-signature", "Review terms and sign off"],
   ];
   return (
     <Card>
@@ -518,69 +516,6 @@ function StepCredit({ d, set }) {
   );
 }
 
-function UploadZone({ slot, title, desc, badge, badgeTone, d, set }) {
-  const [drag, setDrag] = useState(false);
-  const inputRef = useRef();
-  const files = d.docs.filter(f => f.slot === slot);
-  const addFiles = (fileList) => {
-    const list = Array.from(fileList).map(f => ({ id: Date.now() + Math.random(), slot, name: f.name, size: (f.size / 1024).toFixed(0) + " KB" }));
-    set("docs", [...d.docs, ...list]);
-  };
-  const onDrop = (e) => { e.preventDefault(); setDrag(false); addFiles(e.dataTransfer.files); };
-  const rm = (id) => set("docs", d.docs.filter(x => x.id !== id));
-  const tone = badgeTone === "required" ? "text-patriotred bg-patriotred/10"
-    : badgeTone === "conditional" ? "text-amber-700 bg-amber-100"
-    : "text-slate-500 bg-slate-100";
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-2">
-        <div className="text-[14px] font-semibold text-navy">{title}</div>
-        <span className={"text-[10px] font-bold uppercase tracking-wide rounded px-1.5 py-0.5 " + tone}>{badge}</span>
-      </div>
-      <p className="text-[12px] text-slate-500 mb-2.5">{desc}</p>
-      <div onDragOver={e => { e.preventDefault(); setDrag(true); }} onDragLeave={() => setDrag(false)} onDrop={onDrop}
-        onClick={() => inputRef.current.click()}
-        className={"rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition " +
-          (drag ? "border-navy bg-navy/5" : "border-slate-300 hover:border-navy hover:bg-slate-50")}>
-        <input ref={inputRef} type="file" multiple className="hidden" onChange={e => addFiles(e.target.files)} />
-        <div className="w-10 h-10 mx-auto rounded-xl bg-navy/10 text-navy flex items-center justify-center mb-2"><Icon.upload /></div>
-        <div className="text-[14px] font-semibold text-navy">Drop file here or <span className="text-patriotred">browse</span></div>
-        <div className="text-[11px] text-slate-400 mt-0.5">PDF, JPG, or PNG · up to 25 MB</div>
-      </div>
-      {files.length > 0 && (
-        <div className="mt-2.5 space-y-2">
-          {files.map(f => (
-            <div key={f.id} className="flex items-center gap-3 rounded-xl border border-slate-200 p-2.5 fade-in">
-              <div className="w-8 h-8 rounded-lg bg-patriotred/10 text-patriotred flex items-center justify-center"><Icon.file /></div>
-              <div className="flex-1 min-w-0">
-                <div className="text-[13px] font-semibold text-navy truncate">{f.name}</div>
-                <div className="text-[11px] text-slate-400">{f.size} · Uploaded</div>
-              </div>
-              <span className="text-[11px] font-semibold text-green-600 flex items-center gap-1"><Icon.check width="12" height="12" /> Done</span>
-              <button onClick={() => rm(f.id)} className="text-slate-300 hover:text-patriotred"><Icon.trash /></button>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function StepDocs({ d, set }) {
-  return (
-    <Card title="Credit & Compliance" sub="Upload the documents we need to verify your business and set up your account.">
-      <div className="space-y-6">
-        <UploadZone slot="w9" title="Upload W-9" desc="Required for account setup and tax verification."
-          badge="Required" badgeTone="required" d={d} set={set} />
-        <UploadZone slot="credit" title="Upload Credit Application (if applicable)" desc="Required when requesting payment terms."
-          badge="If applicable" badgeTone="conditional" d={d} set={set} />
-        <UploadZone slot="additional" title="Upload Additional Supporting Documents" desc="Optional."
-          badge="Optional" badgeTone="optional" d={d} set={set} />
-      </div>
-    </Card>
-  );
-}
-
 function StepAgreements({ d, set }) {
   const agreements = [
     ["agreeCredit", "Credit Terms Agreement", "I agree to Patriot Freight Group's credit terms and payment schedule."],
@@ -758,7 +693,6 @@ function DataModel({ back }) {
     ["Contacts", "Primary + AP contacts.", "1:many"],
     ["Billing Information", "AP details & billing address.", "1:1"],
     ["Credit Request", "Limit, revenue, trade refs.", "1:1"],
-    ["Uploaded Documents", "W-9, agreements as Files.", "1:many"],
   ];
   return (
     <div className="min-h-screen">
