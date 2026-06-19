@@ -75,7 +75,7 @@ function Wizard({ goAdmin, goModel }) {
   const [step, setStep] = useState(0);
   const [saved, setSaved] = useState(false);
   const [data, setData] = useState({
-    legalName: "", dba: "", ein: "", website: "", industry: "", companyPhone: "",
+    legalName: "", dba: "", website: "", industry: "", companyPhone: "",
     companyAddr: "", companyCity: "", companyState: "", companyZip: "", companyCountry: "United States",
     cFirst: "", cLast: "", cTitle: "", cEmail: "", cPhone: "", cMobile: "", prefContact: "Email",
     apName: "", apEmail: "", apPhone: "", billingAddr: "", billingSame: true,
@@ -485,11 +485,10 @@ function StepCredit({ d, set }) {
   return (
     <Card title="Credit application" sub="Required for Net Terms. Helps us set the right credit line.">
       <div className="grid sm:grid-cols-2 gap-4">
-        <Field label="Federal Tax ID (EIN)"><Text value={d.ein} onChange={e => set("ein", e.target.value)} placeholder="00-0000000" /></Field>
         <Field label="Requested Credit Limit"><Text value={d.creditLimit} onChange={e => set("creditLimit", e.target.value)} placeholder="$50,000" /></Field>
         <Field label="Annual Revenue"><Text value={d.annualRev} onChange={e => set("annualRev", e.target.value)} placeholder="$1,000,000+" /></Field>
         <Field label="Years In Business"><Text value={d.yearsInBiz} onChange={e => set("yearsInBiz", e.target.value)} /></Field>
-        <Field label="D&B Number" optional className="sm:col-span-2"><Text value={d.dnb} onChange={e => set("dnb", e.target.value)} placeholder="DUNS #" /></Field>
+        <Field label="D&B Number" optional><Text value={d.dnb} onChange={e => set("dnb", e.target.value)} placeholder="DUNS #" /></Field>
       </div>
       <div className="mt-7 mb-3 flex items-center justify-between">
         <div>
