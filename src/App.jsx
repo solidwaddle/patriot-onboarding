@@ -84,7 +84,7 @@ function Wizard({ goAdmin, goModel }) {
     payMethod: "", creditLimit: "", annualRev: "", yearsInBiz: "", dnb: "",
     tradeRefs: [{ id: 1, company: "", contact: "", phone: "", email: "" }],
     agreeCredit: false, agreeTerms: false, agreeComms: false,
-    sigName: "", sigTitle: "", sigText: "", sigDate: "2026-06-12",
+    sigName: "", sigTitle: "", sigText: "", sigDate: "2026-06-23", authorized: false,
   });
   const set = (k, v) => setData(d => ({ ...d, [k]: v }));
 
@@ -179,7 +179,7 @@ function Wizard({ goAdmin, goModel }) {
             <div className="flex items-center justify-between mt-7">
               <Btn variant="ghost" onClick={back}><Icon.arrowL /> Back</Btn>
               <Btn variant="primary"
-                disabled={!(data.agreeCredit && data.agreeTerms && data.agreeComms && data.sigName && data.sigText)}
+                disabled={!(data.agreeCredit && data.agreeTerms && data.agreeComms && data.sigName && data.sigText && data.authorized)}
                 onClick={() => setStep(8)}>Submit Application <Icon.check width="15" height="15" /></Btn>
             </div>
           )}
@@ -548,6 +548,10 @@ function StepAgreements({ d, set }) {
             style={{ fontFamily: "'Segoe Script','Brush Script MT',cursive", fontSize: "22px", color: "#16245c" }} />
         </Field>
         <Field label="Date" className="mt-4 max-w-[200px]"><Text type="date" value={d.sigDate} onChange={e => set("sigDate", e.target.value)} /></Field>
+        <label className="flex items-center gap-3 mt-5 cursor-pointer select-none">
+          <Check checked={d.authorized} onChange={() => set("authorized", !d.authorized)} />
+          <span className="text-[14px] text-navy font-medium">I'm authorized to sign for this company.</span>
+        </label>
       </div>
     </Card>
   );
