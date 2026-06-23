@@ -519,7 +519,7 @@ function StepCredit({ d, set }) {
 function StepAgreements({ d, set }) {
   const agreements = [
     ["agreeCredit", "Credit Terms Agreement", "I agree to Patriot Freight Group's credit terms and payment schedule."],
-    ["agreeTerms", "Terms & Conditions", "I have read and accept the Patriot Freight Group Terms & Conditions."],
+    ["agreeTerms", "Terms & Conditions", <>I have read and accept the <a href="https://www.patriotfreightgroup.com/terms/" target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-patriotred font-semibold underline underline-offset-2 hover:text-patriotred-700">Patriot Freight Group Terms &amp; Conditions</a>.</>],
     ["agreeComms", "Electronic Communications Consent", "I consent to receive invoices and notices electronically."],
   ];
   return (
